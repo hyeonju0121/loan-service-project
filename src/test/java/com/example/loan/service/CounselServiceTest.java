@@ -104,4 +104,35 @@ public class CounselServiceTest {
         //then
         assertEquals(ResultType.SYSTEM_ERROR, exception.getErrorCode());
     }
+
+    @Test
+    @DisplayName("대출 상담 수정 서비스")
+    void Should_ReturnUpdatedResponseOfExistCounselEntity_When_RequestUpdateExistCounselInfo() {
+        //given
+        Long findId = 1L;
+
+        Counsel entity = Counsel.builder()
+                .counselId(1L)
+                .name("Member Yu")
+                .build();
+
+        CounselDTO.Request request = CounselDTO.Request.builder()
+                .name("Member Yoo")
+                .build();
+
+        when(counselRepository.findById(findId))
+                .thenReturn(Optional.ofNullable(entity));
+
+        when(counselRepository.save(ArgumentMatchers.any(Counsel.class)))
+                .thenReturn(entity);
+
+        //when
+        CounselDTO.Response response = counselService.updateCounsel(findId, request);
+
+        //then
+        assertThat(response.getCounselId()).isEqualTo(findId);
+        assertThat(response.getName()).isEqualTo(request.getName());
+    }
+
+
 }
