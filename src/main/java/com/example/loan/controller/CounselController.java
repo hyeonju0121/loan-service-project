@@ -30,4 +30,11 @@ public class CounselController extends AbstractController {
             @RequestBody CounselDTO.Request request) {
         return ok(counselService.updateCounsel(counselId, request));
     }
+
+    @DeleteMapping("/{counselId}")
+    public ResponseDTO<CounselDTO.Response> deleteCounsel(
+            @PathVariable Long counselId) {
+        counselService.deleteCounsel(counselId);
+        return ok();
+    }
 }
