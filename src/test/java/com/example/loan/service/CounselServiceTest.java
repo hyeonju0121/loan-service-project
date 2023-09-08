@@ -134,5 +134,28 @@ public class CounselServiceTest {
         assertThat(response.getName()).isEqualTo(request.getName());
     }
 
+    @Test
+    @DisplayName("대출 상담 삭제 서비스")
+    void Should_DeletedCounselEntity_When_RequestExistCounselInfo() {
+        //given
+        Long targetId = 1L;
+
+        Counsel entity = Counsel.builder()
+                .counselId(1L)
+                .build();
+
+        when(counselRepository.findById(targetId))
+                .thenReturn(Optional.ofNullable(entity));
+
+        when(counselRepository.save(ArgumentMatchers.any(Counsel.class)))
+                .thenReturn(entity);
+
+        //when
+        counselService.deleteCounsel(targetId);
+
+        //then
+        assertThat(entity.getIsDeleted()).isEqualTo(true);
+    }
+
 
 }
