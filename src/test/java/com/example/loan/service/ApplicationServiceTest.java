@@ -2,6 +2,8 @@ package com.example.loan.service;
 
 import com.example.loan.domain.Application;
 import com.example.loan.dto.ApplicationDTO;
+import com.example.loan.exception.BaseException;
+import com.example.loan.exception.ResultType;
 import com.example.loan.repository.ApplicationRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +16,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,6 +61,45 @@ public class ApplicationServiceTest {
         //then
         assertThat(response.getHopeAmount()).isEqualTo(entity.getHopeAmount());
         assertThat(response.getName()).isEqualTo(entity.getName());
+    }
+
+    @Test
+    @DisplayName("대출 신청 조회 서비스")
+    void Should_ReturnResponseOfExistsApplicationEntity_When_RequestExistApplicationId() {
+        //given
+        Long applicationId = 1L;
+
+        Application entity = Application.builder()
+                .applicationId(1L)
+                .name("Member Yu")
+                .build();
+
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(entity));
+
+        //when
+        ApplicationDTO.Response response = applicationService.getApplication(applicationId);
+
+        //then
+        assertThat(response.getApplicationId()).isEqualTo(entity.getApplicationId());
+        assertThat(response.getName()).isEqualTo(entity.getName());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 대출 신청 아이디인 경우 - 대출 신청 조회 실패")
+    void Should_ThrowException_When_RequestNotExistApplicationId() {
+        //given
+        Long applicationId = 1L;
+
+        when(applicationRepository.findById(applicationId))
+                .thenThrow(new BaseException(ResultType.NOT_FOUND_APPLICATION));
+
+        //when
+        BaseException exception = assertThrows(BaseException.class,
+                () -> applicationService.getApplication(applicationId));
+
+        //then
+        assertEquals(ResultType.NOT_FOUND_APPLICATION, exception.getErrorCode());
     }
 
 }
