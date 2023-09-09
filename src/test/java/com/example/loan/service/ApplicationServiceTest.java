@@ -102,4 +102,35 @@ public class ApplicationServiceTest {
         assertEquals(ResultType.NOT_FOUND_APPLICATION, exception.getErrorCode());
     }
 
+    @Test
+    @DisplayName("대출 신청 수정 서비스")
+    void Should_ReturnUpdatedResponseOfExistApplicationEntity_When_RequestUpdateExistApplicationInfo() {
+        //given
+        Long applicationId = 1L;
+
+        Application entity = Application.builder()
+                .applicationId(1L)
+                .hopeAmount(BigDecimal.valueOf(50000000))
+                .build();
+
+        ApplicationDTO.Request request = ApplicationDTO.Request.builder()
+                .hopeAmount(BigDecimal.valueOf(80000000))
+                .build();
+
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(entity));
+
+        when(applicationRepository.save(ArgumentMatchers.any(Application.class)))
+                .thenReturn(entity);
+
+        //when
+        ApplicationDTO.Response response = applicationService.updateApplication(
+                applicationId, request);
+
+        //then
+        assertThat(response.getHopeAmount()).isEqualTo(entity.getHopeAmount());
+        assertThat(response.getApplicationId()).isEqualTo(applicationId);
+    }
+
+
 }
