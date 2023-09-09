@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class TermsServiceImpl implements TermsService {
@@ -23,4 +26,17 @@ public class TermsServiceImpl implements TermsService {
 
         return modelMapper.map(created, TermsDTO.Response.class);
     }
+
+    /**
+     * 약관 전체 조회
+     */
+    @Override
+    public List<TermsDTO.Response> getAllTerms() {
+        List<Terms> termsList = termsRepository.findAll();
+
+        return termsList.stream().map(
+                t -> modelMapper.map(t, TermsDTO.Response.class))
+                .collect(Collectors.toList());
+    }
+
 }
