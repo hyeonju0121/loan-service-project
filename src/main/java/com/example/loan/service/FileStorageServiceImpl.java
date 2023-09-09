@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +52,19 @@ public class FileStorageServiceImpl implements FileStorageService {
                 throw new BaseException(ResultType.NOT_EXIST_FILE);
             }
 
+        } catch (Exception e) {
+            throw new BaseException(ResultType.SYSTEM_ERROR);
+        }
+    }
+
+    @Override
+    public Stream<Path> loadAll() {
+        // 신청 서류에 대한 정보 받아오기
+        try {
+            // 해당 uploadPath 하위에 있는 파일들만 조회
+            // 디렉토리 같이 조회 안되게 filter 적용
+            return Files.walk(Paths.get(uploadPath), 1).filter(
+                    path -> !path.equals(Paths.get(uploadPath)));
         } catch (Exception e) {
             throw new BaseException(ResultType.SYSTEM_ERROR);
         }

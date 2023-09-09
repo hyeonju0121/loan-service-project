@@ -1,6 +1,7 @@
 package com.example.loan.controller;
 
 import com.example.loan.dto.ApplicationDTO;
+import com.example.loan.dto.FileDTO;
 import com.example.loan.dto.ResponseDTO;
 import com.example.loan.service.ApplicationService;
 import com.example.loan.service.FileStorageService;
@@ -10,6 +11,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,6 +76,21 @@ public class ApplicationController extends AbstractController {
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"")
                 .body(file);
+    }
+
+    @GetMapping("/files/infos")
+    public ResponseDTO<List<FileDTO>> getFileInfos() {
+        List<FileDTO> fileInfos = fileStorageService.loadAll().map(path -> {
+            String fileName = path.getFileName().toString();
+            return FileDTO.builder()
+                    .name(fileName)
+                    .url(MvcUriComponentsBuilder
+                            .fromMethodName(ApplicationController.class,
+                                    "download", fileName)
+                            .build().toString()).build();
+        }).collect(Collectors.toList());
+
+        return ok(fileInfos);
     }
 
 }
