@@ -60,4 +60,17 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return modelMapper.map(application, ApplicationDTO.Response.class);
     }
+
+    /**
+     * 대출 신청 삭제
+     */
+    @Override
+    public void deleteApplication(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_APPLICATION));
+
+        application.setIsDeleted(true);
+
+        applicationRepository.save(application);
+    }
 }
