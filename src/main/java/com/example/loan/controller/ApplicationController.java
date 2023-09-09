@@ -32,4 +32,11 @@ public class ApplicationController extends AbstractController {
         return ok(applicationService.updateApplication(applicationId, request));
     }
 
+    @DeleteMapping("/{applicationId}")
+    public ResponseDTO<Void> deleteApplication(
+            @PathVariable Long applicationId) {
+        applicationService.deleteApplication(applicationId);
+        return ok();
+    }
+
 }
