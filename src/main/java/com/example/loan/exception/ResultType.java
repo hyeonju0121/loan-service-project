@@ -8,7 +8,9 @@ import lombok.Getter;
 public enum ResultType {
     SUCCESS("0000", "success"),
 
-    SYSTEM_ERROR("9000", "system error");
+    SYSTEM_ERROR("9000", "system error"),
+
+    NOT_FOUND_APPLICATION("9000", "대출 신청 내역이 존재하지 않습니다.");
 
     private final String code;
     private final String desc;
