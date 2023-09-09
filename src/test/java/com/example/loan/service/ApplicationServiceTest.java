@@ -132,5 +132,28 @@ public class ApplicationServiceTest {
         assertThat(response.getApplicationId()).isEqualTo(applicationId);
     }
 
+    @Test
+    @DisplayName("대출 신청 삭제 서비스")
+    void Should_DeletedApplicationEntity_When_RequestExistApplicationInfo() {
+        //given
+        Long applicationId = 1L;
+
+        Application entity = Application.builder()
+                .applicationId(1L)
+                .build();
+
+        when(applicationRepository.findById(applicationId))
+                .thenReturn(Optional.of(entity));
+        when(applicationRepository.save(ArgumentMatchers.any(Application.class)))
+                .thenReturn(entity);
+
+        //when
+        applicationService.deleteApplication(applicationId);
+
+        //then
+        assertThat(entity.getIsDeleted()).isEqualTo(true);
+    }
+
+
 
 }
