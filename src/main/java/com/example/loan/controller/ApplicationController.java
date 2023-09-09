@@ -58,44 +58,52 @@ public class ApplicationController extends AbstractController {
     }
 
     /**
-     * 서류 업로드
+     * 대출 신청 서류 업로드
      */
-    @PostMapping("/files")
-    public ResponseDTO<Void> upload(MultipartFile file) {
-        fileStorageService.save(file);
+    @PostMapping("/{applicationId}/files")
+    public ResponseDTO<Void> upload(@PathVariable Long applicationId, MultipartFile file)
+            throws IllegalStateException {
+        fileStorageService.save(applicationId, file);
         return ok();
     }
 
     /**
      * 신청 서류 다운로드
      */
-    @GetMapping("/files")
-    public ResponseEntity<Resource> download(
-            @RequestParam(value = "fileName") String fileName) {
-        Resource file = fileStorageService.load(fileName);
+    @GetMapping("/{applicationId}/files")
+    public ResponseEntity<Resource> download (
+            @PathVariable Long applicationId,
+            @RequestParam(value = "fileName") String fileName) throws IllegalStateException {
+        Resource file = fileStorageService.load(applicationId, fileName);
         return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"")
                 .body(file);
     }
 
-    @GetMapping("/files/infos")
-    public ResponseDTO<List<FileDTO>> getFileInfos() {
-        List<FileDTO> fileInfos = fileStorageService.loadAll().map(path -> {
+    /**
+     * 대출 신청 서류 조회
+     */
+    @GetMapping("/{applicationId}/files/info")
+    public ResponseDTO<List<FileDTO>> getFileInfo(@PathVariable Long applicationId) {
+        List<FileDTO> fileInfos = fileStorageService.loadAll(applicationId).map(path -> {
             String fileName = path.getFileName().toString();
             return FileDTO.builder()
                     .name(fileName)
                     .url(MvcUriComponentsBuilder
                             .fromMethodName(ApplicationController.class,
-                                    "download", fileName)
+                                    "download", applicationId, fileName)
                             .build().toString()).build();
         }).collect(Collectors.toList());
 
         return ok(fileInfos);
     }
 
-    @DeleteMapping("/files")
-    public ResponseDTO<Void> deleteAll() {
-        fileStorageService.deleteAll();
+    /**
+     * 대출 신청 서류 전체 삭제
+     */
+    @DeleteMapping("/{applicationId}/files")
+    public ResponseDTO<Void> deleteAll(@PathVariable Long applicationId) {
+        fileStorageService.deleteAll(applicationId);
         return ok();
     }
 
