@@ -63,6 +63,25 @@ public class JudgmentServiceImpl implements JudgmentService {
         return modelMapper.map(judgment, JudgmentDTO.Response.class);
     }
 
+    /**
+     * 대출 심사 수정
+     */
+    @Override
+    public JudgmentDTO.Response updateJudgment(
+            Long judgmentId, JudgmentDTO.Request request) {
+
+        Judgment judgment = judgmentRepository.findById(judgmentId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_JUDGMENT));
+
+        judgment.setName(request.getName());
+        judgment.setApprovalAmount(request.getApprovalAmount());
+
+        judgmentRepository.save(judgment);
+
+        return modelMapper.map(judgment, JudgmentDTO.Response.class);
+    }
+
+
 
     private boolean isPresentApplication(Long applicationId) {
         return applicationRepository.findById(applicationId).isPresent();
