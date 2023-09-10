@@ -107,4 +107,14 @@ public class ApplicationController extends AbstractController {
         return ok();
     }
 
+    /**
+     * 대출 계약 체결
+     */
+    @PutMapping("/{applicationId}/contract")
+    public ResponseDTO<ApplicationDTO.Response> contract(
+            @PathVariable Long applicationId) {
+        applicationService.contract(applicationId);
+        return ok();
+    }
+
 }
