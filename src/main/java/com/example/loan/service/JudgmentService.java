@@ -1,5 +1,6 @@
 package com.example.loan.service;
 
+import com.example.loan.dto.ApplicationDTO;
 import com.example.loan.dto.JudgmentDTO;
 
 public interface JudgmentService {
@@ -13,4 +14,6 @@ public interface JudgmentService {
     JudgmentDTO.Response updateJudgment(Long judgmentId, JudgmentDTO.Request request);
 
     void deleteJudgment(Long judgmentId);
+
+    ApplicationDTO.GrantAmount grant(Long judgmentId);
 }
