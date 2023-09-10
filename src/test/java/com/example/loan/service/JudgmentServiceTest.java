@@ -142,5 +142,25 @@ public class JudgmentServiceTest {
         assertThat(response.getApprovalAmount()).isEqualTo(request.getApprovalAmount());
     }
 
+    @Test
+    @DisplayName("대출 심사 삭제 서비스")
+    void Should_DeletedJudgmentEntity_When_RequestDeleteExistJudgmentInfo() {
+        //given
+        Judgment judgment = Judgment.builder()
+                .judgmentId(1L)
+                .build();
+
+        when(judgmentRepository.findById(1L))
+                .thenReturn(Optional.of(judgment));
+
+        when(judgmentRepository.save(ArgumentMatchers.any(Judgment.class)))
+                .thenReturn(judgment);
+
+        //when
+        judgmentService.deleteJudgment(1L);
+
+        //then
+        assertThat(judgment.getIsDeleted()).isTrue();
+    }
 
 }
