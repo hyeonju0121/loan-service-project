@@ -112,5 +112,35 @@ public class JudgmentServiceTest {
         assertThat(response.getJudgmentId()).isEqualTo(judgment.getJudgmentId());
     }
 
+    @Test
+    @DisplayName("대출 심사 수정 서비스")
+    void Should_ReturnUpdateResponseOfExistJudgmentEntity_When_RequestUpdateExistJudgmentInfo() {
+        //given
+        Judgment judgment = Judgment.builder()
+                .judgmentId(1L)
+                .name("Member Yu")
+                .approvalAmount(BigDecimal.valueOf(3000000))
+                .build();
+
+        JudgmentDTO.Request request = JudgmentDTO.Request.builder()
+                .name("Member Kim")
+                .approvalAmount(BigDecimal.valueOf(5000000))
+                .build();
+
+        when(judgmentRepository.findById(1L))
+                .thenReturn(Optional.of(judgment));
+
+        when(judgmentRepository.save(ArgumentMatchers.any(Judgment.class)))
+                .thenReturn(judgment);
+
+        //when
+        JudgmentDTO.Response response = judgmentService.updateJudgment(1L, request);
+
+        //then
+        assertThat(response.getJudgmentId()).isEqualTo(1L);
+        assertThat(response.getName()).isEqualTo(request.getName());
+        assertThat(response.getApprovalAmount()).isEqualTo(request.getApprovalAmount());
+    }
+
 
 }
