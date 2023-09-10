@@ -38,6 +38,31 @@ public class JudgmentServiceImpl implements JudgmentService {
         return modelMapper.map(saved, JudgmentDTO.Response.class);
     }
 
+    /**
+     * 대출 심사 조회 - (대출 심사 아이디로 조회)
+     */
+    @Override
+    public JudgmentDTO.Response getJudgment(Long judgmentId) {
+        Judgment judgment = judgmentRepository.findById(judgmentId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_JUDGMENT));
+
+        return modelMapper.map(judgment, JudgmentDTO.Response.class);
+    }
+
+    /**
+     * 대출 심사 조회 - (대출 신청 아이디로 조회)
+     */
+    @Override
+    public JudgmentDTO.Response getJudgmentOfApplication(Long applicationId) {
+        if (!isPresentApplication(applicationId)) {
+            throw new BaseException(ResultType.NOT_FOUND_APPLICATION);
+        }
+
+        Judgment judgment = judgmentRepository.findByApplicationId(applicationId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_JUDGMENT));
+        return modelMapper.map(judgment, JudgmentDTO.Response.class);
+    }
+
 
     private boolean isPresentApplication(Long applicationId) {
         return applicationRepository.findById(applicationId).isPresent();

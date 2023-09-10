@@ -63,4 +63,54 @@ public class JudgmentServiceTest {
         assertThat(response.getApprovalAmount()).isEqualTo(request.getApprovalAmount());
     }
 
+    @Test
+    @DisplayName("대출 심사 조회 서비스 - 대출 심사 아이디")
+    void Should_ReturnResponseOfJudgmentEntity_When_RequestExistJudgmentId() {
+        //given
+        Long judgmentId = 1L;
+
+        Judgment judgment = Judgment.builder()
+                .judgmentId(1L)
+                .applicationId(2L)
+                .build();
+
+        when(judgmentRepository.findById(judgmentId))
+                .thenReturn(Optional.of(judgment));
+
+        //when
+        JudgmentDTO.Response response = judgmentService.getJudgment(judgmentId);
+
+        //then
+        assertThat(response.getJudgmentId()).isEqualTo(judgment.getJudgmentId());
+        assertThat(response.getApplicationId()).isEqualTo(judgment.getApplicationId());
+    }
+
+    @Test
+    @DisplayName("대출 심사 조회 서비스 - 대출 신청 아이디")
+    void Should_ReturnResponseOfJudgmentEntity_When_RequestExistApplicationId() {
+        //given
+        Judgment judgment = Judgment.builder()
+                .judgmentId(1L)
+                .applicationId(2L)
+                .build();
+
+        Application application = Application.builder()
+                .applicationId(2L)
+                .build();
+
+
+        when(applicationRepository.findById(2L))
+                .thenReturn(Optional.of(Application.builder().build()));
+
+        when(judgmentRepository.findByApplicationId(2L))
+                .thenReturn(Optional.of(judgment));
+        //when
+        JudgmentDTO.Response response = judgmentService.getJudgmentOfApplication(2L);
+
+        //then
+        assertThat(response.getApplicationId()).isEqualTo(judgment.getApplicationId());
+        assertThat(response.getJudgmentId()).isEqualTo(judgment.getJudgmentId());
+    }
+
+
 }

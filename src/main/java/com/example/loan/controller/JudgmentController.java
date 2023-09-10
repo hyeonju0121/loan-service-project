@@ -4,10 +4,7 @@ import com.example.loan.dto.JudgmentDTO;
 import com.example.loan.dto.ResponseDTO;
 import com.example.loan.service.JudgmentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,4 +18,17 @@ public class JudgmentController extends AbstractController {
             @RequestBody JudgmentDTO.Request request) {
         return ok(judgmentService.create(request));
     }
+
+    @GetMapping("/{judgmentId}")
+    public ResponseDTO<JudgmentDTO.Response> getJudgment(
+            @PathVariable Long judgmentId) {
+        return ok(judgmentService.getJudgment(judgmentId));
+    }
+
+    @GetMapping("/applications/{applicationId}")
+    public ResponseDTO<JudgmentDTO.Response> getJudgmentOfApplicationId(
+            @PathVariable Long applicationId) {
+        return ok(judgmentService.getJudgmentOfApplication(applicationId));
+    }
+
 }
