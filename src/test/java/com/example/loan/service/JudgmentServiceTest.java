@@ -2,6 +2,7 @@ package com.example.loan.service;
 
 import com.example.loan.domain.Application;
 import com.example.loan.domain.Judgment;
+import com.example.loan.dto.ApplicationDTO;
 import com.example.loan.dto.JudgmentDTO;
 import com.example.loan.repository.ApplicationRepository;
 import com.example.loan.repository.JudgmentRepository;
@@ -161,6 +162,39 @@ public class JudgmentServiceTest {
 
         //then
         assertThat(judgment.getIsDeleted()).isTrue();
+    }
+
+    @Test
+    @DisplayName("대출 심사 승인 금액 부여")
+    void Should_ReturnUpdateResponseOfExistApplicationEntity_When_RequestGrantAmountOfJudgmentInfo() {
+        //given
+        Judgment judgment = Judgment.builder()
+                .name("Member Yu")
+                .judgmentId(1L)
+                .applicationId(1L)
+                .approvalAmount(BigDecimal.valueOf(8000000))
+                .build();
+
+        Application application = Application.builder()
+                .applicationId(1L)
+                .approvalAmount(BigDecimal.valueOf(8000000))
+                .build();
+
+        when(judgmentRepository.findById(1L))
+                .thenReturn(Optional.of(judgment));
+
+        when(applicationRepository.findById(1L))
+                .thenReturn(Optional.of(application));
+
+        when(applicationRepository.save(ArgumentMatchers.any(Application.class)))
+                .thenReturn(application);
+
+        //when
+        ApplicationDTO.GrantAmount response = judgmentService.grant(1L);
+
+        //then
+        assertThat(response.getApplicationId()).isEqualTo(1L);
+        assertThat(response.getApprovalAmount()).isEqualTo(judgment.getApprovalAmount());
     }
 
 }
