@@ -81,11 +81,21 @@ public class JudgmentServiceImpl implements JudgmentService {
         return modelMapper.map(judgment, JudgmentDTO.Response.class);
     }
 
+    /**
+     * 대출 심사 삭제
+     */
+    @Override
+    public void deleteJudgment(Long judgmentId) {
+        Judgment judgment = judgmentRepository.findById(judgmentId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_JUDGMENT));
+
+        judgment.setIsDeleted(true);
+
+        judgmentRepository.save(judgment);
+    }
 
 
     private boolean isPresentApplication(Long applicationId) {
         return applicationRepository.findById(applicationId).isPresent();
     }
-
-
 }
