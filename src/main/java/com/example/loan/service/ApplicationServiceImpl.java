@@ -2,18 +2,21 @@ package com.example.loan.service;
 
 import com.example.loan.domain.AcceptTerms;
 import com.example.loan.domain.Application;
+import com.example.loan.domain.Judgment;
 import com.example.loan.domain.Terms;
 import com.example.loan.dto.ApplicationDTO;
 import com.example.loan.exception.BaseException;
 import com.example.loan.exception.ResultType;
 import com.example.loan.repository.AcceptTermsRepository;
 import com.example.loan.repository.ApplicationRepository;
+import com.example.loan.repository.JudgmentRepository;
 import com.example.loan.repository.TermsRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,6 +31,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final TermsRepository termsRepository;
 
     private final AcceptTermsRepository acceptTermsRepository;
+
+    private final JudgmentRepository judgmentRepository;
 
     private final ModelMapper modelMapper;
 
@@ -127,5 +132,29 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         return true;
+    }
+
+    /**
+     * 대출 계약 체결 기능
+     */
+    @Override
+    public void contract(Long applicationId) {
+        // 신청 정보 존재여부 검증
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_APPLICATION));
+
+        // 심사 정보 존재여부 검증
+        Judgment judgment = judgmentRepository.findByApplicationId(application.getApplicationId())
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_JUDGMENT));
+
+        // 대출 승인 금액이 null 또는 0원인 경우, 에러 발생
+        if (application.getApprovalAmount() == null ||
+                application.getApprovalAmount().compareTo(BigDecimal.ZERO) == 0) {
+            throw new BaseException(ResultType.SYSTEM_ERROR);
+        }
+
+        // 계약 체결
+        application.setContractedAt(LocalDateTime.now());
+        applicationRepository.save(application);
     }
 }
