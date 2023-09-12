@@ -18,6 +18,10 @@ public enum ResultType {
 
     ACCEPT_NOT_EXIST_TERMS("9000", "존재하지 않는 약관에 동의했습니다."),
 
+    NOT_APPROVED("9000", "아직 대출 승인이 되지 않았습니다."),
+
+    ALREADY_EXIST_CONTRACT("9000", "이미 계약이 체결되었습니다."),
+
     NOT_FOUND_CONTRACT("9000", "아직 계약이 체결되지 않았습니다."),
 
     ALREADY_EXIST_BALANCE("9000", "해당 신청 건은 이미 집행되었습니다."),
