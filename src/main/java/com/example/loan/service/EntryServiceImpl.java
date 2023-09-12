@@ -52,6 +52,17 @@ public class EntryServiceImpl implements EntryService {
     }
 
     /**
+     * 대출 집행 조회 - (대출 신청 아이디 기준으로 조회)
+     */
+    @Override
+    public EntryDTO.Response getEntry(Long applicationId) {
+        Entry entry = entryRepository.findByApplicationId(applicationId)
+                .orElseThrow(() -> new BaseException(ResultType.SYSTEM_ERROR));
+
+        return modelMapper.map(entry, EntryDTO.Response.class);
+    }
+
+    /**
      * 유효성 검증 메서드
      */
     private boolean isContractedApplication(Long applicationId) {

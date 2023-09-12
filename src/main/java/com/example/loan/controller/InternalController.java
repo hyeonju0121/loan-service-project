@@ -21,4 +21,12 @@ public class InternalController extends AbstractController {
             @PathVariable Long applicationId, @RequestBody EntryDTO.Request request) {
         return ok(entryService.create(applicationId, request));
     }
+
+    /**
+     * 대출 집행 조회
+     */
+    @GetMapping("/{applicationId}/entries")
+    public ResponseDTO<EntryDTO.Response> getEntry(@PathVariable Long applicationId) {
+        return ok(entryService.getEntry(applicationId));
+    }
 }
