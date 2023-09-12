@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,16 +26,18 @@ public class BalanceServiceImpl implements BalanceService {
     @Override
     public BalanceDTO.Response create(Long applicationId,
                                       BalanceDTO.Request request) {
-        // 신청건에 해당하는 잔고 존재 여부 검증 (잔고가 존재하는 경우, 에러 발생)
-        if (balanceRepository.findByApplicationId(applicationId).isPresent()) {
-            throw new BaseException(ResultType.ALREADY_EXIST_BALANCE);
-        }
-
         Balance balance = modelMapper.map(request, Balance.class);
 
         BigDecimal entryAmount = request.getEntryAmount();
         balance.setApplicationId(applicationId);
         balance.setBalance(entryAmount);
+
+        balanceRepository.findByApplicationId(applicationId).ifPresent(b -> {
+            balance.setBalanceId(b.getBalanceId());
+            balance.setIsDeleted(b.getIsDeleted());
+            balance.setCreatedAt(b.getCreatedAt());
+            balance.setUpdatedAt(b.getUpdatedAt());
+        });
 
         Balance saved = balanceRepository.save(balance);
 
