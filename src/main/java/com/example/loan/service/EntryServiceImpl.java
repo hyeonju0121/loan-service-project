@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -49,6 +50,75 @@ public class EntryServiceImpl implements EntryService {
                         .build());
 
         return modelMapper.map(entry, EntryDTO.Response.class);
+    }
+
+    /**
+     * 대출 집행 조회 - (대출 신청 아이디 기준으로 조회)
+     */
+    @Override
+    public EntryDTO.Response getEntry(Long applicationId) {
+        Entry entry = entryRepository.findByApplicationId(applicationId)
+                .orElseThrow(() -> new BaseException(ResultType.SYSTEM_ERROR));
+
+        return modelMapper.map(entry, EntryDTO.Response.class);
+    }
+
+
+    /**
+     * 대출 집행 수정
+     */
+    @Override
+    public EntryDTO.UpdateResponse updateEntry(Long entryId,
+                                               EntryDTO.Request request) {
+        // 집행 정보 존재 여부 검증
+        Entry entry = entryRepository.findById(entryId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_ENTRY));
+
+        // before -> after
+        BigDecimal beforeEntryAmount = entry.getEntryAmount();
+        entry.setEntryAmount(request.getEntryAmount());
+
+        entryRepository.save(entry);
+
+        // balance update
+        Long applicationId = entry.getApplicationId();
+        balanceService.update(applicationId,
+                BalanceDTO.UpdateRequest.builder()
+                        .applicationId(applicationId)
+                        .beforeEntryAmount(beforeEntryAmount)
+                        .afterEntryAmount(request.getEntryAmount())
+                        .build());
+
+        // response
+        return EntryDTO.UpdateResponse.builder()
+                .entryId(entry.getEntryId())
+                .applicationId(applicationId)
+                .beforeEntryAmount(beforeEntryAmount)
+                .afterEntryAmount(request.getEntryAmount())
+                .build();
+    }
+
+    /**
+     * 대출 집행 삭제
+     */
+    @Override
+    public void deleteEntry(Long entryId) {
+        // 집행 정보 존재 여부 검증
+        Entry entry = entryRepository.findById(entryId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_ENTRY));
+
+        entry.setIsDeleted(true);
+
+        entryRepository.save(entry);
+
+        // 대출 잔고 수정
+        Long applicationId = entry.getApplicationId();
+        balanceService.update(applicationId,
+                BalanceDTO.UpdateRequest.builder()
+                        .applicationId(applicationId)
+                        .beforeEntryAmount(entry.getEntryAmount())
+                        .afterEntryAmount(BigDecimal.ZERO)
+                        .build());
     }
 
     /**

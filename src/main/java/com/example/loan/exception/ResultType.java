@@ -24,7 +24,11 @@ public enum ResultType {
 
     NOT_FOUND_CONTRACT("9000", "아직 계약이 체결되지 않았습니다."),
 
-    ALREADY_EXIST_BALANCE("9000", "해당 신청 건은 이미 집행되었습니다."),
+    ALREADY_EXIST_BALANCE("9000", "대출 잔고가 이미 존재합니다."),
+
+    NOT_FOUND_BALANCE("9000", "대출 잔고가 존재하지 않습니다."),
+
+    NOT_FOUND_ENTRY("9000", "집행 정보를 찾을 수 없습니다."),
 
     NOT_EXIST_FILE("4001", "파일이 존재하지 않습니다.");
 

@@ -21,4 +21,30 @@ public class InternalController extends AbstractController {
             @PathVariable Long applicationId, @RequestBody EntryDTO.Request request) {
         return ok(entryService.create(applicationId, request));
     }
+
+    /**
+     * 대출 집행 조회
+     */
+    @GetMapping("/{applicationId}/entries")
+    public ResponseDTO<EntryDTO.Response> getEntry(@PathVariable Long applicationId) {
+        return ok(entryService.getEntry(applicationId));
+    }
+
+    /**
+     * 대출 집행 수정
+     */
+    @PutMapping("/entries/{entryId}")
+    public ResponseDTO<EntryDTO.UpdateResponse> updateEntry(
+            @PathVariable Long entryId, @RequestBody EntryDTO.Request request) {
+        return ok(entryService.updateEntry(entryId, request));
+    }
+
+    /**
+     * 대출 집행 삭제
+     */
+    @DeleteMapping("/entries/{entryId}")
+    public ResponseDTO<Void> deleteEntry (@PathVariable Long entryId) {
+        entryService.deleteEntry(entryId);
+        return ok();
+    }
 }
