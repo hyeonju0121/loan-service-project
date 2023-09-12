@@ -143,6 +143,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_APPLICATION));
 
+        // 이미 체결된 계약인지 여부 검증
+        if (application.getContractedAt() != null) {
+            throw new BaseException(ResultType.ALREADY_EXIST_CONTRACT);
+        }
+
         // 심사 정보 존재여부 검증
         Judgment judgment = judgmentRepository.findByApplicationId(application.getApplicationId())
                 .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_JUDGMENT));
@@ -150,7 +155,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         // 대출 승인 금액이 null 또는 0원인 경우, 에러 발생
         if (application.getApprovalAmount() == null ||
                 application.getApprovalAmount().compareTo(BigDecimal.ZERO) == 0) {
-            throw new BaseException(ResultType.SYSTEM_ERROR);
+            throw new BaseException(ResultType.NOT_APPROVED);
         }
 
         // 계약 체결
