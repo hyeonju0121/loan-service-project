@@ -99,6 +99,29 @@ public class EntryServiceImpl implements EntryService {
     }
 
     /**
+     * 대출 집행 삭제
+     */
+    @Override
+    public void deleteEntry(Long entryId) {
+        // 집행 정보 존재 여부 검증
+        Entry entry = entryRepository.findById(entryId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_ENTRY));
+
+        entry.setIsDeleted(true);
+
+        entryRepository.save(entry);
+
+        // 대출 잔고 수정
+        Long applicationId = entry.getApplicationId();
+        balanceService.update(applicationId,
+                BalanceDTO.UpdateRequest.builder()
+                        .applicationId(applicationId)
+                        .beforeEntryAmount(entry.getEntryAmount())
+                        .afterEntryAmount(BigDecimal.ZERO)
+                        .build());
+    }
+
+    /**
      * 유효성 검증 메서드
      */
     private boolean isContractedApplication(Long applicationId) {

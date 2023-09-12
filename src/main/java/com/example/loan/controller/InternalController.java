@@ -38,4 +38,13 @@ public class InternalController extends AbstractController {
             @PathVariable Long entryId, @RequestBody EntryDTO.Request request) {
         return ok(entryService.updateEntry(entryId, request));
     }
+
+    /**
+     * 대출 집행 삭제
+     */
+    @DeleteMapping("/entries/{entryId}")
+    public ResponseDTO<Void> deleteEntry (@PathVariable Long entryId) {
+        entryService.deleteEntry(entryId);
+        return ok();
+    }
 }
