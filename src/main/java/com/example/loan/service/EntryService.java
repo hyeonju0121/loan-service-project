@@ -7,4 +7,6 @@ public interface EntryService {
     EntryDTO.Response create(Long applicationId, EntryDTO.Request request);
 
     EntryDTO.Response getEntry(Long applicationId);
+
+    EntryDTO.UpdateResponse updateEntry(Long entryId, EntryDTO.Request request);
 }

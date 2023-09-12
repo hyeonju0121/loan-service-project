@@ -29,4 +29,13 @@ public class InternalController extends AbstractController {
     public ResponseDTO<EntryDTO.Response> getEntry(@PathVariable Long applicationId) {
         return ok(entryService.getEntry(applicationId));
     }
+
+    /**
+     * 대출 집행 수정
+     */
+    @PutMapping("/entries/{entryId}")
+    public ResponseDTO<EntryDTO.UpdateResponse> updateEntry(
+            @PathVariable Long entryId, @RequestBody EntryDTO.Request request) {
+        return ok(entryService.updateEntry(entryId, request));
+    }
 }

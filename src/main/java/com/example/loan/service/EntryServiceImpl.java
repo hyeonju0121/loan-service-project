@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -60,6 +61,41 @@ public class EntryServiceImpl implements EntryService {
                 .orElseThrow(() -> new BaseException(ResultType.SYSTEM_ERROR));
 
         return modelMapper.map(entry, EntryDTO.Response.class);
+    }
+
+
+    /**
+     * 대출 집행 수정
+     */
+    @Override
+    public EntryDTO.UpdateResponse updateEntry(Long entryId,
+                                               EntryDTO.Request request) {
+        // 집행 정보 존재 여부 검증
+        Entry entry = entryRepository.findById(entryId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_ENTRY));
+
+        // before -> after
+        BigDecimal beforeEntryAmount = entry.getEntryAmount();
+        entry.setEntryAmount(request.getEntryAmount());
+
+        entryRepository.save(entry);
+
+        // balance update
+        Long applicationId = entry.getApplicationId();
+        balanceService.update(applicationId,
+                BalanceDTO.UpdateRequest.builder()
+                        .applicationId(applicationId)
+                        .beforeEntryAmount(beforeEntryAmount)
+                        .afterEntryAmount(request.getEntryAmount())
+                        .build());
+
+        // response
+        return EntryDTO.UpdateResponse.builder()
+                .entryId(entry.getEntryId())
+                .applicationId(applicationId)
+                .beforeEntryAmount(beforeEntryAmount)
+                .afterEntryAmount(request.getEntryAmount())
+                .build();
     }
 
     /**
