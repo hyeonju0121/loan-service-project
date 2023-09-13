@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +60,24 @@ public class RepaymentServiceImpl implements RepaymentService {
         response.setBalance(updatedBalance.getBalance());
 
         return response;
+    }
+
+    /**
+     * 대출금 상환 내역 조회
+     */
+    @Override
+    public List<RepaymentDTO.ListResponse> getRepayments(Long applicationId) {
+        // validation
+        if (!isRepayableApplication(applicationId)) {
+            throw new BaseException(ResultType.SYSTEM_ERROR);
+        }
+
+        List<Repayment> repayments =
+                repaymentRepository.findAllByApplicationId(applicationId);
+
+        return repayments.stream().map(
+                r -> modelMapper.map(r, RepaymentDTO.ListResponse.class))
+                .collect(Collectors.toList());
     }
 
     private boolean isRepayableApplication(Long applicationId) {
