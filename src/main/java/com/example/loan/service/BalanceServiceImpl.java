@@ -10,7 +10,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +59,34 @@ public class BalanceServiceImpl implements BalanceService {
         BigDecimal updatedBalance = balance.getBalance();
 
         updatedBalance = updatedBalance.subtract(beforeEntryAmount).add(afterEntryAmount);
+        balance.setBalance(updatedBalance);
+
+        Balance updated = balanceRepository.save(balance);
+
+        return modelMapper.map(updated, BalanceDTO.Response.class);
+    }
+
+    /**
+     * 대출금 상환 시, 잔고 반영 처리
+     */
+    @Override
+    public BalanceDTO.Response repaymentUpdate(Long applicationId,
+                                               BalanceDTO.RepaymentRequest request) {
+
+        Balance balance = balanceRepository.findByApplicationId(applicationId)
+                .orElseThrow(() -> new BaseException(ResultType.NOT_FOUND_BALANCE));
+
+        BigDecimal updatedBalance = balance.getBalance();
+        BigDecimal repaymentAmount = request.getRepaymentAmount();
+
+        // type 으로 ADD 와 REMOVE 에 따른 기능 처리 (상환 처리, 상환 롤백)
+        // 상환금을 rollback 될 때 : balance + repaymentAmount
+        if (request.getType().equals(BalanceDTO.RepaymentRequest.RepaymentType.ADD)) {
+            updatedBalance = updatedBalance.add(repaymentAmount);
+        } else {  // 정상적으로 상환됐을 때 : balance - repaymentAmount
+            updatedBalance = updatedBalance.subtract(repaymentAmount);
+        }
+
         balance.setBalance(updatedBalance);
 
         Balance updated = balanceRepository.save(balance);
