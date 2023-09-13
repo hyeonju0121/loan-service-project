@@ -10,4 +10,6 @@ public interface RepaymentService {
     List<RepaymentDTO.ListResponse> getRepayments(Long applicationId);
 
     RepaymentDTO.UpdateResponse updateRepayment(Long repaymentId, RepaymentDTO.Request request);
+
+    void deleteRepayment(Long repaymentId);
 }

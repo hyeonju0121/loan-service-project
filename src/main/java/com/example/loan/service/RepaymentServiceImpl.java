@@ -122,6 +122,28 @@ public class RepaymentServiceImpl implements RepaymentService {
                 .build();
     }
 
+    /**
+     * 대출금 상환 삭제
+     */
+    @Override
+    public void deleteRepayment(Long repaymentId) {
+        Repayment repayment = repaymentRepository.findById(repaymentId)
+                .orElseThrow(() -> new BaseException(ResultType.SYSTEM_ERROR));
+
+        // 삭제된 대출 상환금을 잔고에서 rollback 처리
+        Long applicationId = repayment.getApplicationId();
+        BigDecimal removeRepaymentAmount = repayment.getRepaymentAmount();
+        balanceService.repaymentUpdate(applicationId,
+                BalanceDTO.RepaymentRequest.builder()
+                        .repaymentAmount(removeRepaymentAmount)
+                        .type(BalanceDTO.RepaymentRequest.RepaymentType.ADD)
+                        .build());
+
+        // 대출 상환 정보 삭제
+        repayment.setIsDeleted(true);
+        repaymentRepository.save(repayment);
+    }
+
     private boolean isRepayableApplication(Long applicationId) {
 
         Optional<Application> application =

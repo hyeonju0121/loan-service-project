@@ -82,4 +82,13 @@ public class InternalController extends AbstractController {
             @RequestBody RepaymentDTO.Request request) {
         return ok(repaymentService.updateRepayment(repaymentId, request));
     }
+
+    /**
+     * 대출 상환 삭제
+     */
+    @DeleteMapping("/repayments/{repaymentId}")
+    public ResponseDTO<Void> deleteRepayment(@PathVariable Long repaymentId) {
+        repaymentService.deleteRepayment(repaymentId);
+        return ok();
+    }
 }
