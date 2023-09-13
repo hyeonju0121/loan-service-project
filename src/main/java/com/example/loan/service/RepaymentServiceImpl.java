@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,6 +80,46 @@ public class RepaymentServiceImpl implements RepaymentService {
         return repayments.stream().map(
                 r -> modelMapper.map(r, RepaymentDTO.ListResponse.class))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 대출금 상환 수정
+     */
+    @Override
+    public RepaymentDTO.UpdateResponse updateRepayment(
+            Long repaymentId, RepaymentDTO.Request request) {
+
+        Repayment repayment = repaymentRepository.findById(repaymentId)
+                .orElseThrow(() -> new BaseException(ResultType.SYSTEM_ERROR));
+
+        Long applicationId = repayment.getApplicationId();
+        BigDecimal beforeRepaymentAmount = repayment.getRepaymentAmount();
+
+        // 대출 상환금 rollback
+        balanceService.repaymentUpdate(applicationId,
+                BalanceDTO.RepaymentRequest.builder()
+                        .repaymentAmount(beforeRepaymentAmount)
+                        .type(BalanceDTO.RepaymentRequest.RepaymentType.ADD)
+                        .build());
+
+        repayment.setRepaymentAmount(request.getRepaymentAmount());
+        repaymentRepository.save(repayment);
+
+        // 대출 잔고를 수정된 상환금으로 처리
+        BalanceDTO.Response updatedBalance = balanceService.repaymentUpdate(applicationId,
+                BalanceDTO.RepaymentRequest.builder()
+                        .repaymentAmount(request.getRepaymentAmount())
+                        .type(BalanceDTO.RepaymentRequest.RepaymentType.REMOVE)
+                        .build());
+
+        return RepaymentDTO.UpdateResponse.builder()
+                .applicationId(applicationId)
+                .beforeRepaymentAmount(beforeRepaymentAmount)
+                .afterRepaymentAmount(request.getRepaymentAmount())
+                .balance(updatedBalance.getBalance())
+                .createdAt(repayment.getCreatedAt())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
     private boolean isRepayableApplication(Long applicationId) {

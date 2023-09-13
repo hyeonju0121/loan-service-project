@@ -8,4 +8,6 @@ public interface RepaymentService {
     RepaymentDTO.Response create(Long applicationId, RepaymentDTO.Request request);
 
     List<RepaymentDTO.ListResponse> getRepayments(Long applicationId);
+
+    RepaymentDTO.UpdateResponse updateRepayment(Long repaymentId, RepaymentDTO.Request request);
 }
