@@ -35,4 +35,42 @@ public class RepaymentDTO {
         private LocalDateTime updatedAt;
 
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateResponse {
+
+        private Long applicationId;
+
+        private BigDecimal beforeRepaymentAmount;
+
+        private BigDecimal afterRepaymentAmount;
+
+        private BigDecimal balance;
+
+        private LocalDateTime createdAt;
+
+        private LocalDateTime updatedAt;
+
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ListResponse {
+
+        private Long repaymentId;
+
+        private BigDecimal repaymentAmount;
+
+        private LocalDateTime createdAt;
+
+        private LocalDateTime updatedAt;
+
+    }
 }

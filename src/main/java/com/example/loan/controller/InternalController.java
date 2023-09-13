@@ -8,6 +8,8 @@ import com.example.loan.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/internal/applications")
@@ -62,4 +64,31 @@ public class InternalController extends AbstractController {
         return ok(repaymentService.create(applicationId, request));
     }
 
+    /**
+     * 대출 상환 조회
+     */
+    @GetMapping("/{applicationId}/repayments")
+    public ResponseDTO<List<RepaymentDTO.ListResponse>> getRepayments(
+            @PathVariable Long applicationId) {
+        return ok(repaymentService.getRepayments(applicationId));
+    }
+
+    /**
+     * 대출 상환 수정
+     */
+    @PutMapping("/repayments/{repaymentId}")
+    public ResponseDTO<RepaymentDTO.UpdateResponse> updateRepayment(
+            @PathVariable Long repaymentId,
+            @RequestBody RepaymentDTO.Request request) {
+        return ok(repaymentService.updateRepayment(repaymentId, request));
+    }
+
+    /**
+     * 대출 상환 삭제
+     */
+    @DeleteMapping("/repayments/{repaymentId}")
+    public ResponseDTO<Void> deleteRepayment(@PathVariable Long repaymentId) {
+        repaymentService.deleteRepayment(repaymentId);
+        return ok();
+    }
 }
