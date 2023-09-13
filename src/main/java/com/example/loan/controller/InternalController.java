@@ -1,8 +1,10 @@
 package com.example.loan.controller;
 
 import com.example.loan.dto.EntryDTO;
+import com.example.loan.dto.RepaymentDTO;
 import com.example.loan.dto.ResponseDTO;
 import com.example.loan.service.EntryService;
+import com.example.loan.service.RepaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 public class InternalController extends AbstractController {
 
     private final EntryService entryService;
+
+    private final RepaymentService repaymentService;
 
     /**
      * 대출 집행
@@ -47,4 +51,15 @@ public class InternalController extends AbstractController {
         entryService.deleteEntry(entryId);
         return ok();
     }
+
+    /**
+     * 대출 상환 등록
+     */
+    @PostMapping("/{applicationId}/repayments")
+    public ResponseDTO<RepaymentDTO.Response> create(
+            @PathVariable Long applicationId,
+            @RequestBody RepaymentDTO.Request request) {
+        return ok(repaymentService.create(applicationId, request));
+    }
+
 }
